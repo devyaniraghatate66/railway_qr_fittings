@@ -5,13 +5,10 @@ sqlalchemy
 mysql-connector-python
 psycopg2-binary
 Pillow
-pyzbar
 scikit-learn
 opencv-python-headless
 qrcode
 supabase
-zbar-tools
-zbar-tools
-libzbar0
+
 
 
