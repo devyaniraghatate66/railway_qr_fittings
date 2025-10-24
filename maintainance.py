@@ -7,31 +7,32 @@ from io import BytesIO
 from PIL import Image
 from supabase import create_client
 
-# -----------------------------
-# 🔐 Supabase Setup
-# -----------------------------
-SUPABASE_URL = st.secrets["SUPABASE_URL"]
-SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+# -------------------------------------------------------
+# 🔐 Supabase Setup (Hardcoded)
+# -------------------------------------------------------
+SUPABASE_URL = "https://jfuleffsjabisgowwydk.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmdWxlZmZzamFiaXNnb3d3eWRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMDA0OTMsImV4cCI6MjA3Njg3NjQ5M30.AIWy21xt3nE6JVosKF7YsKkA-5MujsRGvzpttXRvPjY"
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# -----------------------------
+# -------------------------------------------------------
+# 🎨 Streamlit App Setup
+# -------------------------------------------------------
+st.set_page_config(page_title="Railway Track Fittings QR Generator", layout="centered")
+st.title("🚆 Indian Railways - Track Fittings QR Generator")
+
+# -------------------------------------------------------
 # QR Code Generator
-# -----------------------------
+# -------------------------------------------------------
 def generate_qr_code(data_str: str) -> Image.Image:
     qr = qrcode.QRCode(version=1, box_size=8, border=4)
     qr.add_data(data_str)
     qr.make(fit=True)
     return qr.make_image(fill_color="black", back_color="white").convert("RGB")
 
-# -----------------------------
-# Streamlit App Setup
-# -----------------------------
-st.set_page_config(page_title="Railway Track Fittings QR Generator", layout="centered")
-st.title("🚆 Indian Railways - Track Fittings QR Generator")
-
-# -----------------------------
+# -------------------------------------------------------
 # Default Session State
-# -----------------------------
+# -------------------------------------------------------
 defaults = {
     "item_type": "Elastic Rail Clip",
     "metal_type": "Steel",
@@ -51,9 +52,9 @@ for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
-# -----------------------------
+# -------------------------------------------------------
 # Fitting Input Form
-# -----------------------------
+# -------------------------------------------------------
 with st.form("qr_form"):
     st.subheader("Enter Fitting Details")
 
@@ -78,9 +79,9 @@ with st.form("qr_form"):
 
     submitted = st.form_submit_button("Generate QR")
 
-# -----------------------------
+# -------------------------------------------------------
 # Handle Submission
-# -----------------------------
+# -------------------------------------------------------
 if submitted:
     try:
         # Generate unique fitting ID
