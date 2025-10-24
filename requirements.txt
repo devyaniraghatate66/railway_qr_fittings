@@ -9,6 +9,3 @@ scikit-learn
 opencv-python-headless
 qrcode
 supabase
-
-
-
