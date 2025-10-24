@@ -11,4 +11,7 @@ opencv-python-headless
 qrcode
 supabase
 zbar-tools
+zbar-tools
+libzbar0
+
 
