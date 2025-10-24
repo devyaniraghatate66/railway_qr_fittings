@@ -1,0 +1,107 @@
+# scanner_app1.py
+import streamlit as st
+from PIL import Image
+from pyzbar.pyzbar import decode
+from datetime import date
+from supabase import create_client
+
+# -------------------------------------------------------
+# 🔐 Supabase Setup
+# -------------------------------------------------------
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# -------------------------------------------------------
+# 🎨 Streamlit UI Setup
+# -------------------------------------------------------
+st.set_page_config(page_title="Railway Fittings QR Scanner", layout="centered")
+st.title("📱 Indian Railways - QR Fitting Scanner")
+st.write("Scan or upload a QR code to retrieve fitting details.")
+
+# -------------------------------------------------------
+# ⚙️ QR Processing Function
+# -------------------------------------------------------
+def process_qr(img: Image.Image) -> str | None:
+    """Decode QR code from an image and extract fitting ID."""
+    decoded_objects = decode(img)
+    if decoded_objects:
+        qr_data = decoded_objects[0].data.decode("utf-8")
+        fitting_id = qr_data.split("fitting/")[-1] if "fitting/" in qr_data else qr_data
+        return fitting_id
+    return None
+
+# -------------------------------------------------------
+# 🖼️ Input Selection
+# -------------------------------------------------------
+option = st.radio("Select Input Method", ["Camera", "Upload QR Image"], index=0)
+fitting_id = None
+
+if option == "Camera":
+    camera_input = st.camera_input("Scan QR Code with Camera")
+    if camera_input:
+        img = Image.open(camera_input)
+        fitting_id = process_qr(img)
+
+elif option == "Upload QR Image":
+    file_input = st.file_uploader("Upload QR Code Image", type=["png", "jpg", "jpeg"])
+    if file_input:
+        img = Image.open(file_input)
+        fitting_id = process_qr(img)
+
+# -------------------------------------------------------
+# 🔍 Fetch Data from Supabase
+# -------------------------------------------------------
+if fitting_id:
+    st.success(f"✅ QR Code Detected! Fitting ID: {fitting_id}")
+    
+    response = supabase.table("fittings").select("*").eq("fitting_id", fitting_id).execute()
+    
+    if response.data:
+        fitting = response.data[0]
+
+        st.subheader("🔎 Fitting Details")
+        details = {
+            "Item Type": fitting.get("item_type"),
+            "Metal Type": fitting.get("metal_type"),
+            "Vendor Name": fitting.get("vendor_name"),
+            "Lot Number": fitting.get("lot_number"),
+            "Date of Manufacture": fitting.get("date_of_manufacture"),
+            "Date of Supply": fitting.get("date_of_supply"),
+            "Warranty (Years)": fitting.get("warranty_years"),
+            "Warranty Expiry": fitting.get("expiry_date"),
+            "Initial Inspection": fitting.get("initial_inspection"),
+            "Inspection Frequency (Months)": fitting.get("inspection_frequency_months"),
+            "Next Inspection Due": fitting.get("next_inspection"),
+            "Location / Track ID": fitting.get("location"),
+            "Railway Station / Track Name": fitting.get("track_name"),
+            "Remarks": fitting.get("remarks")
+        }
+        for key, value in details.items():
+            st.write(f"**{key}:** {value}")
+
+        # -------------------------------------------------------
+        # 🚨 Alerts Section
+        # -------------------------------------------------------
+        today = date.today()
+        alerts = []
+
+        expiry_date = fitting.get("expiry_date")
+        next_insp = fitting.get("next_inspection")
+        supply_date = fitting.get("date_of_supply")
+
+        if expiry_date and today > date.fromisoformat(expiry_date):
+            alerts.append("⚠️ Warranty Expired!")
+        if next_insp and today > date.fromisoformat(next_insp):
+            alerts.append("🔧 Inspection Overdue!")
+        if supply_date and (today - date.fromisoformat(supply_date)).days > (10 * 365):
+            alerts.append("⛔ Service Life (10 years) Exceeded!")
+
+        if alerts:
+            st.error(" | ".join(alerts))
+        else:
+            st.success("✅ All Good. No issues found.")
+    else:
+        st.error("❌ No record found for this Fitting ID.")
+else:
+    st.info("📷 Please scan a QR code or upload an image to continue.")

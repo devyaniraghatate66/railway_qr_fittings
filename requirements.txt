@@ -1,0 +1,12 @@
+streamlit
+pandas
+numpy
+sqlalchemy
+mysql-connector-python
+psycopg2-binary
+Pillow
+pyzbar
+scikit-learn
+opencv-python-headless
+qrcode
+supabase
