@@ -1,7 +1,8 @@
 # scanner_app1.py
 import streamlit as st
 from PIL import Image
-from pyzbar.pyzbar import decode
+import cv2
+import numpy as np
 from datetime import date
 from supabase import create_client
 
@@ -20,14 +21,15 @@ st.title("📱 Indian Railways - QR Fitting Scanner")
 st.write("Scan or upload a QR code to retrieve fitting details.")
 
 # -------------------------------------------------------
-# ⚙️ QR Processing Function
+# ⚙️ QR Processing Function using OpenCV
 # -------------------------------------------------------
 def process_qr(img: Image.Image) -> str | None:
-    """Decode QR code from an image and extract fitting ID."""
-    decoded_objects = decode(img)
-    if decoded_objects:
-        qr_data = decoded_objects[0].data.decode("utf-8")
-        fitting_id = qr_data.split("fitting/")[-1] if "fitting/" in qr_data else qr_data
+    """Decode QR code from an image using OpenCV and extract fitting ID."""
+    cv_img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+    detector = cv2.QRCodeDetector()
+    data, _, _ = detector.detectAndDecode(cv_img)
+    if data:
+        fitting_id = data.split("fitting/")[-1] if "fitting/" in data else data
         return fitting_id
     return None
 
