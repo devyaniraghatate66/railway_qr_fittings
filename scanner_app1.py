@@ -7,10 +7,11 @@ from datetime import date
 from supabase import create_client
 
 # -------------------------------------------------------
-# 🔐 Supabase Setup
+# 🔐 Supabase Setup (Hardcoded)
 # -------------------------------------------------------
-SUPABASE_URL = st.secrets["SUPABASE_URL"]
-SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+SUPABASE_URL = "https://jfuleffsjabisgowwydk.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmdWxlZmZzamFiaXNnb3d3eWRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMDA0OTMsImV4cCI6MjA3Njg3NjQ5M30.AIWy21xt3nE6JVosKF7YsKkA-5MujsRGvzpttXRvPjY"
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # -------------------------------------------------------
